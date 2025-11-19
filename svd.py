@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import svd
 
+import pandas as pd
 from collections import Counter
 import re
 
@@ -76,37 +77,25 @@ print(f"Dimensiones: {term_doc_matrix.shape}(términos x documentos)")
 print(f"Primeras 10 filas y 15 columnas:")
 print(term_doc_matrix[:10, :15])  # Mostrar solo una parte de la matriz para brevedad
 
-'''
+df = pd.DataFrame(term_doc_matrix, columns=vocabulary)
+df.to_csv('Matriz_termino_documento.csv', index=False, encoding='utf-8')
 
-print("U: ", U)
-print("Singular array", singular)
-print("V^{T}", V_transpose)
+### 2. Aplicación de SVD
 
-singular_inv = 1.0 / singular
-s_inv = np.zeros(X.shape)
-s_inv[0][0] = singular_inv[0]
-s_inv[1][1] = singular_inv[1]
-M = np.dot(np.dot(V_transpose.T, s_inv.T), U.T)
-print(M)
+U, singular, V_transpose = svd(term_doc_matrix)
 
-cat = data.chelsea()
-plt.imshow(cat)
+print("\n3. SVD:")
+print("\nU (Matriz de Términos): \n", U.shape)
+print("\n",U[:10, :5])
+df = pd.DataFrame(U, columns=[f'Doc_{i}' for i in range(len(documents))])
+df.to_csv('Matriz_de_terminos.csv', index=False, encoding='utf-8')
 
-gray_cat = rgb2gray(cat)
+print("\nS (Valores Singulares): \n", singular.shape)
+print("\n",singular[:10])
+df = pd.DataFrame(singular, columns=["Valores Singulares"])
+df.to_csv('Valores_singulares.csv', index=False, encoding='utf-8')
 
-U, S, V_T = svd(gray_cat, full_matrices=False)
-S = np.diag(S)
-fig, ax = plt.subplots(5, 2, figsize=(8, 20))
-
-curr_fig = 0
-for r in [5, 10, 70, 100, 200]:
-    cat_approx = U[:, :r] @ S[0:r, :r] @ V_T[:r, :]
-    ax[curr_fig][0].imshow(cat_approx, cmap='gray')
-    ax[curr_fig][0].set_title("k = " + str(r))
-    ax[curr_fig, 0].axis('off')
-    ax[curr_fig][1].set_title("Original Image")
-    ax[curr_fig][1].imshow(gray_cat, cmap='gray')
-    ax[curr_fig, 1].axis('off')
-    curr_fig += 1
-plt.show()
-'''
+print("\nV^T (Matriz transpuesta): \n", V_transpose.shape)
+print("\n",V_transpose)
+df = pd.DataFrame(V_transpose, columns=vocabulary)
+df.to_csv('Matriz_de_documentos_transpuesta.csv', index=False, encoding='utf-8')
